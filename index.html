@@ -25,7 +25,8 @@
         const REMOVE_TODO = 'REMOVE_TODO';
         const TOGGLE_TODO = 'TOGGLE_TODO';
         const ADD_GOAL = 'ADD_GOAL';
-        const REMOVE_GOAL = 'REMOVE_GOAL'
+        const REMOVE_GOAL = 'REMOVE_GOAL';
+        const RECEIVE_DATA = 'RECEIVE_DATA';
 
         // Action creators
         function addTodoAction(todo) {
@@ -63,6 +64,14 @@
             }
         }
 
+        function receiveDataAction (todos, goals) {
+            return {
+                type: RECEIVE_DATA,
+                todos,
+                goals
+            }
+        }
+
 
         //Reducer, takes in current state and the action,
         // returns new state
@@ -74,7 +83,9 @@
                     return state.filter((todo) => todo.id !== action.id)
                 case TOGGLE_TODO :
                     return state.map((todo) => todo.id !== action.id ? todo :
-                        Object.assign({}, todo, {complete: !todo.complete}))
+                        Object.assign({}, todo, {complete: !todo.complete}));
+                case RECEIVE_DATA :
+                    return action.todos
                 default :
                     return state
             }
@@ -85,7 +96,9 @@
                 case ADD_GOAL :
                     return state.concat([action.goal]);
                 case REMOVE_GOAL :
-                    return state.filter((goal) => goal.id !== action.id)
+                    return state.filter((goal) => goal.id !== action.id);
+                case RECEIVE_DATA :
+                    return action.goals
                 default :
                     return state
             }
@@ -224,6 +237,15 @@
         componentDidMount() {
             const {store} = this.props;
             store.subscribe( () => this.forceUpdate())
+            
+            Promise.all([
+                API.fetchTodos(),
+                API.fetchGoals()
+            ]).then ( ([todos, goals]) => {
+                // console.log("Todos: ", todos);
+                // console.log("Goals: ", goals)
+                store.dispatch(receiveDataAction(todos, goals))
+            })
         }
         render() {
             const {store} = this.props;
