@@ -136,6 +136,19 @@
             }
         }
 
+        function handleInitialData () {
+            return (dispatch) => {
+                return Promise.all([
+                    API.fetchTodos(),
+                    API.fetchGoals()
+                ]).then ( ([todos, goals]) => {
+                    // console.log("Todos: ", todos);
+                    // console.log("Goals: ", goals)
+                    dispatch(receiveDataAction(todos, goals))
+                })
+            }
+        }
+
         //Reducer, takes in current state and the action,
         // returns new state
         function todos (state = [], action) {
@@ -312,16 +325,10 @@
     class App extends React.Component {
         componentDidMount() {
             const {store} = this.props;
+
+            store.dispatch(handleInitialData())
+
             store.subscribe( () => this.forceUpdate())
-            
-            Promise.all([
-                API.fetchTodos(),
-                API.fetchGoals()
-            ]).then ( ([todos, goals]) => {
-                // console.log("Todos: ", todos);
-                // console.log("Goals: ", goals)
-                store.dispatch(receiveDataAction(todos, goals))
-            })
         }
         render() {
             const {store} = this.props;
