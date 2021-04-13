@@ -87,6 +87,30 @@
             
         }
 
+        function handleAddGoal (name, cd) {
+            return (dispatch) => {
+                return API.saveGoal(name)
+                    .then((goal) => {
+                        dispatch(addGoalAction(goal))
+                        cb()
+                    })
+                    .catch(() => {
+                        alert("There was an error, please try again.")
+                    })
+            }
+        }
+
+        function handleDeleteGoal (goal) {
+            return (dispatch) => {
+                dispatch(removeGoalAction(goal.id))
+
+                return API.deleteGoal(goal.id)
+                    .catch(() => {
+                        dispatch(addGoalAction(goal.id))
+                        alert("An error occurred, please try agai")
+                    })
+            }
+        }
 
         //Reducer, takes in current state and the action,
         // returns new state
@@ -243,22 +267,13 @@
         addItem = e => {
             e.preventDefault()
 
-            return API.saveGoal(this.input.value)
-                .then((goal) => {
-                    this.props.store.dispatch(addGoalAction(goal))
-                    this.input.value = ''
-                })
-                .catch(() => {
-                    alert("There was an error, please try again.")
-                })
+            this.props.store.dispatch(handleAddGoal(
+                this.input.value,
+                () => this.input.value = ''
+            ))
         }
         removeItem = (goal) => {
-            this.props.store.dispatch(removeGoalAction(goal.id))
-            return API.deleteGoal(goal.id)
-                .catch(() => {
-                    this.props.store.dispatch(addGoalAction(goal.id))
-                    alert("An error occurred, please try agai")
-                })
+            this.props.store.dispatch(handleDeleteGoal(goal))
         }
         render() {
             return (
