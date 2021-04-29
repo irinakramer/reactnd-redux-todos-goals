@@ -37,6 +37,6 @@ class Goals extends React.Component {
     }
 }
 
-expect default connect((state) => ({
+export default connect((state) => ({
     goals: state.goals
 }))(Goals)
